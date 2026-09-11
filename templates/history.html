@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expired History - ExpiryWatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">Expiry<span>Watch</span></div>
+    <nav><a href="{{ url_for('index') }}">Dashboard</a><a class="active" href="{{ url_for('history') }}">Expired History</a></nav>
+</header>
+<main class="page">
+    <section class="hero compact">
+        <div><p class="eyebrow">HISTORY</p><h1>Expired Products</h1></div>
+    </section>
+    <section class="panel">
+        <div class="product-grid">
+        {% for p in products %}
+            <article class="product-card">
+                {% if p.photo %}<img src="{{ url_for('static', filename=p.photo) }}" alt="Product">{% else %}<div class="placeholder">📦</div>{% endif %}
+                <div class="product-body">
+                    <span class="status expired">Expired</span>
+                    <h3>{{ p.product_name }}</h3>
+                    <p>{{ p.category }}</p>
+                    <p>Expiry: {{ p.expiry_date or p.estimated_expiry or 'Unknown' }}</p>
+                </div>
+            </article>
+        {% else %}
+            <div class="empty"><div>✓</div><h3>No expired products</h3><p>Your expired history is empty.</p></div>
+        {% endfor %}
+        </div>
+    </section>
+</main>
+</body>
+</html>
