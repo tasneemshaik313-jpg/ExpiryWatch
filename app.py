@@ -7,6 +7,11 @@ import sqlite3
 import uuid
 import os
 import re
+import smtplib
+import ssl
+import threading
+import time
+from email.message import EmailMessage
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -144,6 +149,93 @@ def save_upload(file):
     path = UPLOAD_FOLDER / name
     file.save(path)
     return f"uploads/{name}"
+
+
+def email_settings_ready():
+    return bool(os.getenv("EMAIL_USER") and os.getenv("EMAIL_PASSWORD"))
+
+
+def send_email(to_email, subject, body):
+    """Send a real email when SMTP credentials are configured."""
+    user = os.getenv("EMAIL_USER")
+    password = os.getenv("EMAIL_PASSWORD")
+    if not user or not password or not to_email:
+        return False
+    host = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+    port = int(os.getenv("EMAIL_PORT", "587"))
+    msg = EmailMessage()
+    msg["From"] = user
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.set_content(body)
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP(host, port, timeout=20) as server:
+            server.starttls(context=context)
+            server.login(user, password)
+            server.send_message(msg)
+        return True
+    except Exception as exc:
+        print("Email notification error:", exc)
+        return False
+
+
+def due_notice(row):
+    expiry = row["expiry_date"] or row["estimated_expiry"]
+    left = days_left(expiry)
+    if left not in (10, 7, 3, 0):
+        return None
+    if left == 0:
+        message = f"{row['product_name']} expires today."
+        level = "urgent"
+    elif left == 3:
+        message = f"{row['product_name']} expires in 3 days."
+        level = "urgent"
+    else:
+        message = f"{row['product_name']} expires in {left} days."
+        level = "warning"
+    return {"product": row["product_name"], "expiry": expiry, "days": left, "message": message, "level": level}
+
+
+def process_email_notifications():
+    """Check every user's due products and send each milestone only once."""
+    if not email_settings_ready():
+        return
+    conn = get_db()
+    users = conn.execute("SELECT id,name,email FROM users").fetchall()
+    for user in users:
+        rows = conn.execute("SELECT * FROM products WHERE user_id=?", (user["id"],)).fetchall()
+        for row in rows:
+            notice = due_notice(row)
+            if not notice:
+                continue
+            token = str(notice["days"])
+            sent = [x for x in (row["notification_sent"] or "").split(",") if x]
+            if token in sent:
+                continue
+            subject = f"ExpiryWatch alert: {row['product_name']}"
+            body = (
+                f"Hello {user['name']},\n\n"
+                f"ExpiryWatch reminder: {row['product_name']} {'expires today' if notice['days'] == 0 else 'expires in ' + str(notice['days']) + ' days'}.\n"
+                f"Expiry date: {notice['expiry']}\n"
+                f"Category: {row['category']}\n\n"
+                "Open your ExpiryWatch dashboard to review your inventory.\n\n"
+                "— ExpiryWatch"
+            )
+            if send_email(user["email"], subject, body):
+                sent.append(token)
+                conn.execute("UPDATE products SET notification_sent=? WHERE id=?", (",".join(sorted(set(sent))), row["id"]))
+    conn.commit()
+    conn.close()
+
+
+def notification_worker():
+    while True:
+        try:
+            process_email_notifications()
+        except Exception as exc:
+            print("Notification worker error:", exc)
+        time.sleep(60)
 
 
 @app.route("/")
@@ -448,25 +540,24 @@ def stats():
 @app.route("/api/notifications")
 @login_required
 def notifications():
+    # Also checks email immediately, so alerts do not depend on a page refresh.
+    process_email_notifications()
     conn = get_db()
     rows = conn.execute("SELECT * FROM products WHERE user_id=? ORDER BY id DESC", (current_user_id(),)).fetchall()
+    user = conn.execute("SELECT email FROM users WHERE id=?", (current_user_id(),)).fetchone()
     conn.close()
     notices = []
     for r in rows:
-        expiry = r["expiry_date"] or r["estimated_expiry"]
-        left = days_left(expiry)
-        if left in (10, 7, 3, 0):
-            if left == 0:
-                message = f"{r['product_name']} expires today."
-                level = "urgent"
-            elif left == 3:
-                message = f"{r['product_name']} expires in 3 days."
-                level = "urgent"
-            else:
-                message = f"{r['product_name']} expires in {left} days."
-                level = "warning"
-            notices.append({"product": r["product_name"], "expiry": expiry, "days": left, "message": message, "level": level})
-    return jsonify(notices)
+        notice = due_notice(r)
+        if notice:
+            notices.append(notice)
+    return jsonify({
+        "notifications": notices,
+        "email_configured": email_settings_ready(),
+        "email": user["email"] if user else ""
+    })
+
+
 
 @app.route("/history")
 @login_required
@@ -505,7 +596,7 @@ def login():
             session["user_name"] = user["name"]
             return redirect(url_for("index"))
 
-        flash("Incorrect email or password.")
+        flash("Email or password is incorrect. If you are new, create an account first.")
     return render_template("login.html", mode=request.args.get("mode", "login"))
 
 
@@ -550,4 +641,6 @@ def logout():
 
 if __name__ == "__main__":
     init_db()
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+        threading.Thread(target=notification_worker, daemon=True).start()
     app.run(debug=True)

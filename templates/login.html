@@ -1,160 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>{{ 'Create account' if mode == 'register' else 'Sign in' }} · ExpiryWatch</title>
-
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body class="auth-page">
-
 <main class="auth-shell">
-
   <section class="auth-brand-panel">
-
-    <img
-      src="{{ url_for('static', filename='expirylogo.png') }}"
-      alt="ExpiryWatch"
-      style="width:100%; height:100%; object-fit:cover; border-radius:inherit;"
-    >
-
+    <img class="auth-full-logo" src="{{ url_for('static', filename='expirylogo.png') }}" alt="ExpiryWatch">
+    <div class="auth-brand-copy">
+      <p>Know what expires. Use it in time.</p>
+      <div class="auth-points"><span>✓</span> Scan products automatically</div>
+      <div class="auth-points"><span>✓</span> Get expiry alerts on time</div>
+      <div class="auth-points"><span>✓</span> Keep your inventory organized</div>
+    </div>
   </section>
-
-
   <section class="auth-form-panel">
-
     <div class="auth-form-head">
-
-      <span class="auth-kicker">
-        {{ 'NEW ACCOUNT' if mode == 'register' else 'SECURE SIGN IN' }}
-      </span>
-
-      <h1>
-        {{ 'Create your account' if mode == 'register' else 'Welcome back' }}
-      </h1>
-
-      <p>
-        {{ 'Your inventory stays connected to your account.'
-        if mode == 'register'
-        else 'Sign in to access your saved products and expiry alerts.' }}
-      </p>
-
+      <span class="auth-kicker">{{ 'NEW ACCOUNT' if mode == 'register' else 'SECURE SIGN IN' }}</span>
+      <h1>{{ 'Create your account' if mode == 'register' else 'Welcome back' }}</h1>
+      <p>{{ 'Your inventory stays connected to your account.' if mode == 'register' else 'Sign in to access your saved products and expiry alerts.' }}</p>
     </div>
-
-
     {% with messages = get_flashed_messages() %}
-
-      {% for msg in messages %}
-        <div class="alert">{{ msg }}</div>
-      {% endfor %}
-
+      {% for msg in messages %}<div class="alert">{{ msg }}</div>{% endfor %}
     {% endwith %}
-
-
     {% if mode == 'register' %}
-
-      <form
-        method="post"
-        action="{{ url_for('register') }}"
-        class="auth-form"
-      >
-
-        <label>Full name</label>
-
-        <input
-          name="name"
-          autocomplete="name"
-          required
-        >
-
-
-        <label>Email address</label>
-
-        <input
-          type="email"
-          name="email"
-          autocomplete="email"
-          required
-        >
-
-
-        <label>Password</label>
-
-        <input
-          type="password"
-          name="password"
-          minlength="6"
-          autocomplete="new-password"
-          required
-        >
-
-
-        <button class="auth-submit" type="submit">
-          Create account <span>→</span>
-        </button>
-
+      <form method="post" action="{{ url_for('register') }}" class="auth-form">
+        <label>Full name</label><input name="name" autocomplete="name" required>
+        <label>Email address</label><input type="email" name="email" autocomplete="email" required>
+        <label>Password</label><input type="password" name="password" minlength="6" autocomplete="new-password" required>
+        <button class="auth-submit" type="submit">Create account <span>→</span></button>
       </form>
-
-
-      <p class="auth-switch">
-        Already have an account?
-        <a href="{{ url_for('login') }}">Sign in</a>
-      </p>
-
-
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Sign in</a></p>
     {% else %}
-
-      <form
-        method="post"
-        action="{{ url_for('login') }}"
-        class="auth-form"
-      >
-
-        <label>Email address</label>
-
-        <input
-          type="email"
-          name="email"
-          autocomplete="email"
-          required
-        >
-
-
-        <label>Password</label>
-
-        <input
-          type="password"
-          name="password"
-          autocomplete="current-password"
-          required
-        >
-
-
-        <button class="auth-submit" type="submit">
-          Sign in <span>→</span>
-        </button>
-
+      <form method="post" action="{{ url_for('login') }}" class="auth-form">
+        <label>Email address</label><input type="email" name="email" autocomplete="email" required>
+        <label>Password</label><input type="password" name="password" autocomplete="current-password" required>
+        <button class="auth-submit" type="submit">Sign in <span>→</span></button>
       </form>
-
-
-      <p class="auth-switch">
-        New to ExpiryWatch?
-        <a href="{{ url_for('register') }}">Create account</a>
-      </p>
-
+      <p class="auth-switch">New to ExpiryWatch? <a href="{{ url_for('register') }}">Create account</a></p>
     {% endif %}
-
-
-    <div class="auth-foot">
-      Your account is private to you.
-    </div>
-
+    <div class="auth-foot">Private inventory · Secure account · Expiry intelligence</div>
   </section>
-
 </main>
-
 </body>
 </html>
+

@@ -98,20 +98,52 @@ async function loadNotifications() {
     const list = document.getElementById("notificationList");
     if (!count) return;
     try {
-        const response = await fetch("/api/notifications");
-        const notices = await response.json();
+        const response = await fetch("/api/notifications", {cache: "no-store"});
+        const payload = await response.json();
+        const notices = payload.notifications || [];
         count.textContent = notices.length;
+        const emailStatus = document.getElementById("emailStatus");
+        if (emailStatus) emailStatus.textContent = payload.email_configured ? `Email alerts active · ${payload.email}` : "Browser alerts active · Email setup required";
         if (notices.length) {
             panel.classList.remove("hidden");
             list.innerHTML = notices.map(n => `<div class="notice ${n.level}"><strong>${n.message}</strong><span>Expiry: ${n.expiry}</span></div>`).join("");
+            if ("Notification" in window && Notification.permission === "granted") {
+                const todayKey = new Date().toISOString().slice(0,10);
+                notices.forEach(n => {
+                    const key = `expirywatch-${todayKey}-${n.product}-${n.days}`;
+                    if (!localStorage.getItem(key)) {
+                        new Notification("ExpiryWatch alert", {body: `${n.product}: ${n.days === 0 ? "expires today" : `expires in ${n.days} days`}.`});
+                        localStorage.setItem(key, "1");
+                    }
+                });
+            }
+        } else {
+            panel.classList.add("hidden");
         }
     } catch(e) { console.log(e); }
 }
 
 document.getElementById("notifyBtn")?.addEventListener("click", async () => {
-    if ("Notification" in window && Notification.permission === "default") await Notification.requestPermission();
-    document.getElementById("notificationPanel")?.classList.remove("hidden");
+    if (!("Notification" in window)) return alert("Browser notifications are not supported in this browser.");
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+        new Notification("ExpiryWatch alerts enabled", {body: "You will receive expiry reminders while this app is open."});
+        loadNotifications();
+    } else {
+        alert("Please allow notifications in the browser permission popup.");
+    }
 });
+document.getElementById("enableAlertsBtn")?.addEventListener("click", async () => {
+    if (!("Notification" in window)) return alert("Browser notifications are not supported in this browser.");
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+        new Notification("ExpiryWatch alerts enabled", {body: "Real expiry reminders are now enabled on this browser."});
+        loadNotifications();
+    } else {
+        alert("Please allow notifications when Chrome asks.");
+    }
+});
+
 
 async function loadStats() {
     const total = document.getElementById("total");
@@ -127,6 +159,7 @@ async function loadStats() {
 }
 loadStats();
 loadNotifications();
+setInterval(loadNotifications, 30000);
 
 // Instant front-photo preview: makes the scanner feel like an app, without
 // uploading anything until the user presses Analyze Product.
