@@ -12,7 +12,7 @@ LABEL_WORDS = re.compile(r"MFG|MFD|EXP|EXPIRY|BEST|BEFORE|USE|BY|MANUFACTUR", re
 
 def _ocr(image, config):
     try:
-        return pytesseract.image_to_string(image, config=config, timeout=12).strip()
+        return pytesseract.image_to_string(image, config=config, timeout=20).strip()
     except Exception as e:
         print("OCR error:", e)
         return ""
