@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Settings · ExpiryWatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">Expiry<span>Watch</span></a>
+  <nav class="main-nav">
+    <a href="{{ url_for('index') }}">Dashboard</a>
+    <a href="{{ url_for('history') }}">History</a>
+    <a class="active" href="{{ url_for('settings') }}">Settings</a>
+    <a class="account-link" href="{{ url_for('logout') }}">Sign out</a>
+  </nav>
+</header>
+<main class="page">
+  <section class="welcome-row">
+    <div>
+      <span class="eyebrow">SETTINGS</span>
+      <h1>ExpiryWatch settings.</h1>
+      <p>Manage your account and notification preferences.</p>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="section-heading"><div><span class="section-number">01</span><h2>Account</h2></div></div>
+    <div class="result-grid">
+      <div><span>Name</span><strong>{{ user.name or '—' }}</strong></div>
+      <div><span>Email</span><strong>{{ user.email or '—' }}</strong></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="section-heading"><div><span class="section-number">02</span><h2>Notifications</h2></div></div>
+    <p>ExpiryWatch checks your saved products and shows expiry alerts inside the app at the configured milestones.</p>
+    <p><strong>In-app alerts:</strong> Active</p>
+    <p><strong>Alert milestones:</strong> 10 days · 7 days · 3 days · expiry day</p>
+  </section>
+</main>
+</body>
+</html>

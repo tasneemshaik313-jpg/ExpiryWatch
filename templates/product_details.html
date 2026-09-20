@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{{ product.product_name }} · ExpiryWatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.detail-photos{display:flex;gap:16px;flex-wrap:wrap}
+.detail-photos img{width:180px;height:180px;object-fit:cover;border-radius:18px}
+.detail-risk{padding:18px;border-radius:16px;background:#fff0f6;margin:18px 0}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">Expiry<span>Watch</span></a>
+  <nav class="main-nav">
+    <a href="{{ url_for('index') }}">Dashboard</a>
+    <a href="{{ url_for('history') }}">History</a>
+    <a href="{{ url_for('settings') }}">Settings</a>
+    <a class="account-link" href="{{ url_for('logout') }}">Sign out</a>
+  </nav>
+</header>
+<main class="page">
+  <section class="welcome-row">
+    <div>
+      <span class="eyebrow">PRODUCT DETAILS</span>
+      <h1>{{ product.product_name }}</h1>
+      <p>{{ product.category }}</p>
+    </div>
+    <a class="scan-top" href="{{ url_for('index') }}">← Dashboard</a>
+  </section>
+
+  <section class="panel">
+    <div class="detail-photos">
+      {% if product.photo %}<img src="{{ url_for('static', filename=product.photo) }}" alt="Front photo">{% endif %}
+      {% if product.extra_photo %}<img src="{{ url_for('static', filename=product.extra_photo) }}" alt="Back photo">{% endif %}
+    </div>
+
+    <div class="detail-risk">
+      <strong>Smart Expiry Risk</strong>
+      <h2>{{ product.risk_score if product.risk_score is not none else '—' }}/100</h2>
+      <p>{{ product.risk_label }}</p>
+    </div>
+
+    <div class="result-grid">
+      <div><span>Manufacturing</span><strong>{{ product.manufacturing_date or '—' }}</strong></div>
+      <div><span>Expiry</span><strong>{{ product.expiry_date or product.estimated_expiry or '—' }}</strong></div>
+      <div><span>Status</span><strong>{{ product.status }}</strong></div>
+      <div><span>Days remaining</span><strong>{{ product.days_left if product.days_left is not none else '—' }}</strong></div>
+      <div><span>Barcode</span><strong>{{ product.barcode or 'Not found' }}</strong></div>
+      <div><span>Confidence</span><strong>{{ ((product.confidence or 0) * 100)|round|int }}%</strong></div>
+    </div>
+
+    <p class="note">This page is for expiry tracking and product organization.</p>
+    <a class="edit-link" href="{{ url_for('edit_product', product_id=product.id) }}">Edit product</a>
+  </section>
+</main>
+</body>
+</html>

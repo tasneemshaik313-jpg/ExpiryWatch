@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+expirywatch.db
+static/uploads/*
+.env

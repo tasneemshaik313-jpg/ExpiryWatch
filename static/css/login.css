@@ -1,0 +1,861 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    background: #f7f7f8;
+    color: #171218;
+}
+
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
+.login-page {
+    min-height: 100vh;
+    width: 100%;
+
+    display: flex;
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   LEFT VISUAL PANEL
+   ========================================================= */
+
+.visual-panel {
+    width: 53%;
+    min-height: 100vh;
+
+    position: relative;
+    overflow: hidden;
+
+    background: #17070d;
+}
+
+
+/* Background image */
+
+.visual-image {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    object-position: center;
+
+    display: block;
+}
+
+
+/* Dark overlay */
+
+.visual-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(10, 5, 8, 0.70) 0%,
+            rgba(10, 5, 8, 0.35) 42%,
+            rgba(10, 5, 8, 0.08) 100%
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.brand-area {
+    position: absolute;
+
+    top: 48px;
+    left: 52px;
+
+    z-index: 5;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+/* EW logo */
+
+.brand-logo {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 15px;
+
+    background: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+.brand-logo span {
+    font-size: 21px;
+
+    font-weight: 900;
+
+    letter-spacing: -1px;
+
+    color: #a81742;
+}
+
+
+/* Brand name */
+
+.brand-name {
+    font-size: 38px;
+
+    font-weight: 900;
+
+    letter-spacing: -2px;
+
+    line-height: 1;
+}
+
+.brand-dark {
+    color: #ffffff;
+}
+
+.brand-pink {
+    color: #ff4c87;
+}
+
+
+/* =========================================================
+   VISUAL CONTENT
+   ========================================================= */
+
+.visual-content {
+    position: absolute;
+
+    z-index: 5;
+
+    left: 52px;
+    right: 80px;
+
+    bottom: 135px;
+}
+
+
+.eyebrow {
+    display: inline-block;
+
+    margin-bottom: 18px;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #ff77a4;
+}
+
+
+.visual-content h1 {
+    color: #ffffff;
+
+    font-size: clamp(42px, 4vw, 64px);
+
+    line-height: 1.04;
+
+    letter-spacing: -2.5px;
+
+    font-weight: 900;
+
+    margin-bottom: 22px;
+}
+
+
+.visual-content > p {
+    max-width: 570px;
+
+    color: rgba(255, 255, 255, 0.88);
+
+    font-size: 18px;
+
+    line-height: 1.65;
+
+    margin-bottom: 30px;
+}
+
+
+/* =========================================================
+   FEATURES
+   ========================================================= */
+
+.feature-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 17px;
+}
+
+
+.feature-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    color: #ffffff;
+}
+
+
+.feature-icon {
+    width: 31px;
+    height: 31px;
+
+    flex: 0 0 31px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+
+    color: #a81742;
+
+    font-size: 17px;
+
+    font-weight: 900;
+}
+
+
+.feature-item strong {
+    display: block;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    margin-bottom: 3px;
+}
+
+
+.feature-item span {
+    display: block;
+
+    font-size: 13px;
+
+    color: rgba(255, 255, 255, 0.70);
+}
+
+
+/* =========================================================
+   VISUAL FOOTER
+   ========================================================= */
+
+.visual-footer {
+    position: absolute;
+
+    z-index: 5;
+
+    left: 52px;
+    bottom: 42px;
+
+    color: rgba(255, 255, 255, 0.60);
+
+    font-size: 12px;
+
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   RIGHT LOGIN PANEL
+   ========================================================= */
+
+.login-panel {
+    width: 47%;
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+}
+
+
+.login-container {
+    width: min(520px, 82%);
+
+    padding: 45px 0;
+}
+
+
+/* =========================================================
+   MOBILE BRAND
+   ========================================================= */
+
+.mobile-brand {
+    display: none;
+}
+
+
+/* =========================================================
+   LOGIN HEADING
+   ========================================================= */
+
+.login-eyebrow {
+    color: #e62f72;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 20px;
+}
+
+
+.login-heading h2 {
+    color: #19131a;
+
+    font-size: clamp(40px, 4vw, 54px);
+
+    line-height: 1;
+
+    letter-spacing: -2.5px;
+
+    font-weight: 900;
+
+    margin-bottom: 18px;
+}
+
+
+.login-heading p {
+    color: #776e77;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    margin-bottom: 38px;
+}
+
+
+/* =========================================================
+   FLASH MESSAGE
+   ========================================================= */
+
+.flash-messages {
+    margin-bottom: 22px;
+}
+
+
+.flash-message {
+    padding: 13px 16px;
+
+    border-radius: 10px;
+
+    background: #fff1f5;
+
+    border: 1px solid #ffd2df;
+
+    color: #a81742;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.login-form {
+    width: 100%;
+}
+
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+
+.form-group label {
+    display: block;
+
+    color: #282028;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    margin-bottom: 9px;
+}
+
+
+.password-label-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.form-group input {
+    width: 100%;
+
+    height: 62px;
+
+    padding: 0 18px;
+
+    border: 1px solid #ddd5da;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    color: #201921;
+
+    font-size: 16px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+
+.form-group input::placeholder {
+    color: #9a9198;
+}
+
+
+.form-group input:hover {
+    border-color: #cfc4cb;
+}
+
+
+.form-group input:focus {
+    border-color: #e52f72;
+
+    box-shadow:
+        0 0 0 4px rgba(229, 47, 114, 0.10);
+}
+
+
+/* =========================================================
+   PASSWORD
+   ========================================================= */
+
+.password-wrapper {
+    position: relative;
+}
+
+
+.password-wrapper input {
+    padding-right: 55px;
+}
+
+
+.show-password {
+    position: absolute;
+
+    right: 17px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    border: none;
+
+    background: transparent;
+
+    color: #7e737b;
+
+    font-size: 17px;
+
+    cursor: pointer;
+
+    opacity: 0.55;
+
+    padding: 5px;
+}
+
+
+.show-password:hover {
+    color: #e52f72;
+
+    opacity: 1;
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+.login-button {
+    width: 100%;
+
+    height: 64px;
+
+    margin-top: 7px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #e62f72,
+            #d81f61
+        );
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 18px;
+
+    font-size: 17px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 28px rgba(216, 31, 97, 0.20);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+
+.login-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 34px rgba(216, 31, 97, 0.27);
+
+    filter: brightness(1.03);
+}
+
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+
+.login-button .arrow {
+    font-size: 23px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   REGISTER
+   ========================================================= */
+
+.register-area {
+    margin-top: 29px;
+
+    text-align: center;
+
+    font-size: 14px;
+
+    color: #80767e;
+}
+
+
+.register-area a {
+    margin-left: 5px;
+
+    color: #d91f62;
+
+    font-weight: 900;
+
+    text-decoration: none;
+}
+
+
+.register-area a:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+   ========================================================= */
+
+.security-note {
+    margin-top: 42px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eee8eb;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    color: #a49aa1;
+
+    font-size: 12px;
+}
+
+
+.security-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #d91f62;
+
+    box-shadow:
+        0 0 0 4px rgba(217, 31, 98, 0.08);
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+    .visual-panel {
+        width: 48%;
+    }
+
+    .login-panel {
+        width: 52%;
+    }
+
+    .brand-area {
+        left: 35px;
+    }
+
+    .visual-content {
+        left: 35px;
+        right: 35px;
+    }
+
+    .visual-footer {
+        left: 35px;
+    }
+
+    .visual-content h1 {
+        font-size: 43px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 780px) {
+
+    .login-page {
+        display: block;
+
+        min-height: 100vh;
+
+        background: #ffffff;
+    }
+
+
+    .visual-panel {
+        display: none;
+    }
+
+
+    .login-panel {
+        width: 100%;
+
+        min-height: 100vh;
+
+        display: flex;
+
+        align-items: flex-start;
+
+        justify-content: center;
+
+        padding: 0 20px;
+    }
+
+
+    .login-container {
+        width: 100%;
+
+        max-width: 520px;
+
+        padding: 38px 0 35px;
+    }
+
+
+    .mobile-brand {
+        display: flex;
+
+        align-items: center;
+
+        gap: 11px;
+
+        margin-bottom: 55px;
+    }
+
+
+    .mobile-logo {
+        width: 45px;
+        height: 45px;
+
+        border-radius: 12px;
+
+        background: #e62f72;
+
+        color: #ffffff;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        font-weight: 900;
+
+        font-size: 15px;
+    }
+
+
+    .mobile-name {
+        font-size: 25px;
+
+        font-weight: 900;
+
+        letter-spacing: -1.2px;
+    }
+
+
+    .mobile-name span {
+        color: #19131a;
+    }
+
+
+    .mobile-name b {
+        color: #e62f72;
+    }
+
+
+    .login-heading h2 {
+        font-size: 42px;
+    }
+
+
+    .login-heading p {
+        font-size: 15px;
+
+        margin-bottom: 32px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+    .login-panel {
+        padding: 0 17px;
+    }
+
+
+    .login-container {
+        padding-top: 28px;
+    }
+
+
+    .mobile-brand {
+        margin-bottom: 45px;
+    }
+
+
+    .login-heading h2 {
+        font-size: 37px;
+    }
+
+
+    .form-group input {
+        height: 58px;
+    }
+
+
+    .login-button {
+        height: 60px;
+    }
+
+
+    .security-note {
+        text-align: center;
+
+        line-height: 1.5;
+    }
+
+}

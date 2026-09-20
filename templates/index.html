@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ExpiryWatch</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.photo-pair{display:flex;gap:10px;align-items:center}
+.photo-pair img{width:64px;height:64px;object-fit:cover;border-radius:12px}
+.risk-box{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff0f6}
+.risk-score{font-size:22px;font-weight:800}
+.risk-low{color:#16834b}.risk-medium{color:#a66a00}.risk-high{color:#c62828}.risk-expired{color:#555}
+.confidence-note{margin-top:8px;font-size:13px}
+.manual-help{font-size:13px;margin:8px 0 12px}
+.notice{cursor:pointer}
+.notice:hover{transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('index') }}">Expiry<span>Watch</span></a>
+  <nav class="main-nav">
+    <a class="active" href="{{ url_for('index') }}">Dashboard</a>
+    <a href="{{ url_for('history') }}">History</a>
+    <a href="{{ url_for('settings') }}">Settings</a>
+    <button class="notify-btn" id="notifyBtn" type="button" title="Expiry notifications">⌁ <span id="notifyCount">0</span></button>
+    <a class="account-link" href="{{ url_for('logout') }}">Sign out</a>
+  </nav>
+</header>
+
+<main class="page">
+  <section class="welcome-row">
+    <div>
+      <span class="eyebrow">MY INVENTORY</span>
+      <h1>Expiry, under control.</h1>
+      <p>Scan a product and let ExpiryWatch read the dates for you.</p>
+    </div>
+    <button class="scan-top" onclick="document.getElementById('scanner').scrollIntoView({behavior:'smooth'})">+ Scan product</button>
+  </section>
+
+  <section class="stats-grid" id="stats">
+    <div class="stat-card"><span>All products</span><strong id="total">0</strong></div>
+    <div class="stat-card"><span>Safe</span><strong id="safe">0</strong></div>
+    <div class="stat-card warning"><span>Expiring</span><strong id="soon">0</strong></div>
+    <div class="stat-card danger"><span>Expired</span><strong id="expired">0</strong></div>
+  </section>
+
+  <section class="alert-strip">
+    <div><strong>Expiry alerts</strong><span id="emailStatus">In-app alerts are active.</span></div>
+    <button type="button" class="alert-enable" id="enableAlertsBtn">View alerts</button>
+  </section>
+
+  <section class="panel scanner" id="scanner">
+    <div class="section-heading">
+      <div><span class="section-number">01</span><h2>Scan product</h2></div>
+      <span class="micro-copy">OCR · date intelligence · barcode</span>
+    </div>
+
+    <form id="analyzeForm">
+      <div class="upload-grid">
+        <label class="upload-box required-upload">
+          <input type="file" name="front_product_image" accept="image/*" capture="environment" required>
+          <span class="upload-icon">＋</span><strong>Front photo</strong><small>Required · product identity</small>
+          <img id="frontPreview" class="upload-preview hidden" alt="Front preview">
+        </label>
+
+        <label class="upload-box">
+          <input type="file" name="product_images" accept="image/*" capture="environment" multiple>
+          <span class="upload-icon">⌁</span><strong>Back / extra photo</strong><small>Optional · date / batch text</small>
+          <div class="upload-note">Add a closer view when the printed date is tiny.</div>
+          <img id="extraPreview" class="upload-preview hidden" alt="Back preview">
+        </label>
+      </div>
+
+      <div class="form-grid compact-grid">
+        <div><label>Product name <span>optional</span></label><input name="product_name" placeholder="Auto detect"></div>
+        <div><label>Category <span>optional</span></label><select name="category"><option value="">Auto detect</option>{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></div>
+        <div><label>Quantity</label><input type="number" name="quantity" min="1" value="1"></div>
+      </div>
+
+      <button class="primary scan-action" type="submit" id="analyzeBtn">Scan & detect <span>→</span></button>
+    </form>
+
+    <div id="loading" class="loading hidden"><div class="spinner"></div><div><strong>Reading product...</strong><small>Finding tiny date text and package evidence</small></div></div>
+
+    <div id="analysisResult" class="result-card hidden">
+      <div class="result-title">
+        <div><span class="mini-kicker">SCAN COMPLETE</span><h3>Detected details</h3></div>
+        <span id="confidenceBadge" class="badge">Confidence</span>
+      </div>
+
+      <div id="verificationBox" class="verification hidden">
+        <div>
+          <strong>Review date detection</strong>
+          <p class="manual-help">If OCR could not read the date clearly, enter the correct date manually. If the package says “Use within X months”, MFG + X months will be calculated automatically when possible.</p>
+        </div>
+        <div class="verify-grid">
+          <div><label>Manufacturing date</label><input id="verifyMfg" placeholder="DD/MM/YYYY or MM/YYYY"></div>
+          <div><label>Expiry date</label><input id="verifyExpiry" placeholder="DD/MM/YYYY or MM/YYYY"></div>
+        </div>
+        <button type="button" class="secondary" id="applyVerification">Apply dates</button>
+      </div>
+
+      <div class="result-grid">
+        <div><span>Product</span><strong id="rProduct">-</strong></div>
+        <div><span>Category</span><strong id="rCategory">-</strong></div>
+        <div><span>Barcode</span><strong id="rBarcode">Not found</strong></div>
+        <div><span>Manufacturing</span><strong id="rMfg">Not found</strong></div>
+        <div><span>Expiry</span><strong id="rExpiry">Not found</strong></div>
+        <div><span>Basis</span><strong id="rEstimated">Not calculated</strong></div>
+        <div><span>Status</span><strong id="rStatus">Unknown</strong></div>
+        <div><span>Shelf life</span><strong id="rShelf">-</strong></div>
+      </div>
+
+      <div class="risk-box">
+        <span>Smart Expiry Risk</span>
+        <div class="risk-score" id="rRisk">Not calculated</div>
+        <div id="rRiskLabel">Risk will be shown after a valid expiry date is available.</div>
+      </div>
+
+      <p class="confidence-note" id="confidenceNote"></p>
+      <p class="note" id="rNote"></p>
+
+      <div class="save-area">
+        <form method="post" action="{{ url_for('add_product') }}" id="saveForm">
+          <input type="hidden" name="product_name" id="sProduct">
+          <input type="hidden" name="category" id="sCategory">
+          <input type="hidden" name="barcode" id="sBarcode">
+          <input type="hidden" name="manufacturing_date" id="sMfg">
+          <input type="hidden" name="expiry_date" id="sExpiry">
+          <input type="hidden" name="estimated_expiry" id="sEstimated">
+          <input type="hidden" name="quantity" id="sQuantity" value="1">
+          <input type="hidden" name="purchase_date" value="{{ today }}">
+          <input type="hidden" name="photo" id="sPhoto">
+          <input type="hidden" name="extra_photo" id="sExtraPhoto">
+          <input type="hidden" name="ocr_text" id="sOCR">
+          <input type="hidden" name="confidence" id="sConfidence">
+          <button class="primary" type="submit">Save to inventory <span>→</span></button>
+        </form>
+      </div>
+
+      <details><summary>View OCR text</summary><pre id="rOCR"></pre></details>
+    </div>
+  </section>
+
+  <section class="panel notification-panel hidden" id="notificationPanel">
+    <div class="section-heading">
+      <div><span class="section-number">02</span><h2>Alerts</h2></div>
+      <span class="micro-copy">Tap an alert to open the product</span>
+    </div>
+    <div id="notificationList"></div>
+  </section>
+
+  <section class="panel products-panel">
+    <div class="section-heading products-heading">
+      <div><span class="section-number">03</span><h2>My products</h2></div>
+      <form class="search" method="get" action="{{ url_for('search') }}">
+        <input name="q" value="{{ query|default('') }}" placeholder="Search products">
+        <select name="category">
+          <option>All</option>
+          {% for c in categories %}<option {% if selected_category|default('') == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+        </select>
+        <button>Search</button>
+      </form>
+    </div>
+
+    <div class="product-list">
+      {% for p in products %}
+      <article class="product-row" id="product-{{ p.id }}">
+        <div class="photo-pair">
+          {% if p.photo %}<img src="{{ url_for('static', filename=p.photo) }}" alt="{{ p.product_name }} front">{% else %}<div class="placeholder">+</div>{% endif %}
+          {% if p.extra_photo %}<img src="{{ url_for('static', filename=p.extra_photo) }}" alt="{{ p.product_name }} back">{% endif %}
+        </div>
+
+        <div class="product-main">
+          <div class="product-name-line"><h3>{{ p.product_name }}</h3><span class="status {{ p.status|lower|replace(' ', '-') }}">{{ p.status }}</span></div>
+          <span class="category">{{ p.category }}</span>
+          {% if p.risk_score is not none %}<div class="risk-{{ p.risk_level }}">Risk: {{ p.risk_score }}/100 · {{ p.risk_label }}</div>{% endif %}
+        </div>
+
+        <div class="date-column"><span>Manufacturing</span><strong>{{ p.manufacturing_date or '—' }}</strong></div>
+        <div class="date-column"><span>Expiry</span><strong>{{ p.expiry_date or p.estimated_expiry or '—' }}</strong></div>
+
+        <div class="remaining">
+          {% if p.days_left is not none %}
+            {% if p.days_left < 0 %}<b>Expired</b><small>{{ -p.days_left }}d ago</small>
+            {% elif p.days_left == 0 %}<b>Today</b><small>expires now</small>
+            {% else %}<b>{{ p.days_left }}d</b><small>remaining</small>{% endif %}
+          {% else %}<b>—</b><small>unknown</small>{% endif %}
+        </div>
+
+        <div class="row-actions">
+          <a class="edit-link" href="{{ url_for('product_details', product_id=p.id) }}">View</a>
+          <a class="edit-link" href="{{ url_for('edit_product', product_id=p.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_product', product_id=p.id) }}" onsubmit="return confirm('Delete this product?')"><button class="link-danger">Delete</button></form>
+        </div>
+      </article>
+      {% else %}
+      <div class="empty"><div>+</div><h3>Your inventory is empty</h3><p>Scan your first product above.</p></div>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
